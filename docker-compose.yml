@@ -1,0 +1,27 @@
+services:
+  backend:
+    ports:
+      - '8080:8080'
+    build: "./backend"
+    depends_on:
+      - redis
+
+  client:
+    ports:
+      - '3000:3000'
+    build: "./client"
+
+  redis:
+    image: redis:7.4-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass $REDIS_PASSWORD
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", $REDIS_PASSWORD, "--raw", "incr", "ping" ]
+    volumes: 
+      - redis:/data
+      
+volumes:
+  redis:
+    driver: local
