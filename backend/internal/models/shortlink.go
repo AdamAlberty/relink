@@ -7,28 +7,40 @@ import (
 	"example.com/shortener/internal/types"
 )
 
-func SaveShortlink(shortlink *types.Shortlink) error {
-	return database.Redis.HSet(context.Background(), "link:"+shortlink.Short, map[string]any{
-		"short": shortlink.Short,
-		"long":  shortlink.Long,
-	}).Err()
+func SaveLink(link *types.Link) error {
+	_, err := database.DB.Exec(context.Background(), "INSERT INTO links (domain, shortpath, destination)  VALUES ($1, $2, $3)", link.Domain, link.Shortpath, link.Destination)
+	return err
 }
 
-func GetShortlinks() ([]map[string]string, error) {
-	links := make([]map[string]string, 0)
-	iter := database.Redis.Scan(context.Background(), 0, "link:*", 0).Iterator()
+func DeleteLink(id int) error {
+	_, err := database.DB.Exec(context.Background(), "DELETE FROM links WHERE id = $1", id)
+	return err
+}
 
-	for iter.Next(context.Background()) {
-		link, err := database.Redis.HGetAll(context.Background(), iter.Val()).Result()
-		if err != nil {
-			return nil, err
-		}
-		links = append(links, link)
+func EditLink(id int, link *types.Link) error {
+	_, err := database.DB.Exec(context.Background(), "UPDATE links SET domain = $1, shortpath = $2, destination = $3 WHERE id = $4", link.Domain, link.Shortpath, link.Destination, id)
+	return err
+}
+
+func GetLinks() ([]types.Link, error) {
+	links := make([]types.Link, 0)
+	rows, err := database.DB.Query(context.Background(), "SELECT domain, shortpath, destination FROM links")
+	if err != nil {
+		return nil, err
 	}
+
+	link := new(types.Link)
+	for rows.Next() {
+		if err := rows.Scan(&link.Domain, &link.Shortpath, &link.Destination); err != nil {
+			return links, nil
+		}
+		links = append(links, *link)
+	}
+
 	return links, nil
 }
 
-func CheckShortlinkExists(short string) (bool, error) {
-	exists, err := database.Redis.Exists(context.Background(), "link:"+short).Result()
-	return exists != 0, err
+func GetDestination(link *types.Link) error {
+	row := database.DB.QueryRow(context.Background(), "SELECT destination FROM links WHERE domain = $1 AND shortpath = $2", link.Domain, link.Shortpath)
+	return row.Scan(&link.Destination)
 }

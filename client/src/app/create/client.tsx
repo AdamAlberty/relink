@@ -17,11 +17,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const schema = z
   .object({
-    short: z
+    shortpath: z
       .string()
       .min(1, "Must contain something")
       .max(50, "Shortlink is too long"),
-    long: z.string().url("Must be a valid url"),
+    destination: z.string().url("Must be a valid url"),
+    domain: z.string().min(1, "Must contain something"),
   })
   .required();
 
@@ -36,8 +37,9 @@ export default function Client() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      short: "",
-      long: "",
+      domain: "",
+      shortpath: "",
+      destination: "",
     },
     resolver: zodResolver(schema),
   });
@@ -92,42 +94,53 @@ export default function Client() {
 
       <section className="grid gap-5">
         <div>
-          <Label htmlFor="short">Short link</Label>
+          <Label htmlFor="long">Shortener domain</Label>
+          <Input
+            autoComplete="off"
+            type="text"
+            id="long"
+            placeholder="go.example.com"
+            {...register("domain")}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="short">Shortpath</Label>
           <div>
             <div className="relative">
               <Input
                 autoComplete="off"
                 type="text"
                 id="short"
-                {...register("short")}
+                {...register("shortpath")}
               />
               <div className="absolute right-0 top-0">
                 <GenerateShortlink
-                  onGenerate={(v: string) => setValue("short", v)}
+                  onGenerate={(v: string) => setValue("shortpath", v)}
                 />
               </div>
             </div>
-            {errors.short?.message && (
+            {errors.shortpath?.message && (
               <div className="bg-red-500 mt-2 p-2 rounded-md text-sm">
-                {errors.short.message}
+                {errors.shortpath.message}
               </div>
             )}
           </div>
         </div>
 
         <div>
-          <Label htmlFor="long">Destination URL</Label>
+          <Label htmlFor="destination">Destination URL</Label>
           <Input
             autoComplete="off"
             type="text"
-            id="long"
+            id="destination"
             placeholder="https://example.com/page"
-            {...register("long")}
+            {...register("destination")}
           />
 
-          {errors.long?.message && (
+          {errors.destination?.message && (
             <div className="bg-red-500 mt-2 p-2 rounded-md text-sm">
-              {errors.long.message}
+              {errors.destination.message}
             </div>
           )}
         </div>

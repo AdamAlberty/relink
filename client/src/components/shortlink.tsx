@@ -10,7 +10,7 @@ export default function Shortlink({
   link,
   setEditing,
 }: {
-  link: { short: string; long: string };
+  link: { domain: string; shortpath: string; destination: string };
   setEditing: Function;
 }) {
   const queryClient = useQueryClient();
@@ -55,8 +55,13 @@ export default function Shortlink({
         )}
       >
         <div className="">
-          <div className="font-medium">{link.short}</div>
-          <div className="text-sm text-muted-foreground">{link.long}</div>
+          <div className="font-medium">
+            <span className="text-muted-foreground">{link.domain}</span>/
+            {link.shortpath}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {link.destination}
+          </div>
         </div>
         <div className="flex gap-2">
           <ShortlinkDropdown

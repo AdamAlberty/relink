@@ -105,7 +105,11 @@ export default function Home() {
       <ul className="grid mt-5">
         {filtered &&
           filtered.map((link: any) => (
-            <Shortlink key={link.short} link={link} setEditing={setEditing} />
+            <Shortlink
+              key={link.domain + link.shortpath}
+              link={link}
+              setEditing={setEditing}
+            />
           ))}
       </ul>
 

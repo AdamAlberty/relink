@@ -1,6 +1,7 @@
 package types
 
-type Shortlink struct {
-	Short string `json:"short"`
-	Long  string `json:"long"`
+type Link struct {
+	Shortpath   string `json:"shortpath"`
+	Domain      string `json:"domain"`
+	Destination string `json:"destination"`
 }
