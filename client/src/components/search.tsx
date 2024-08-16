@@ -11,7 +11,7 @@ export default function Search({
 }) {
   const fuse = new Fuse(data, {
     includeScore: true,
-    keys: ["short", "long"],
+    keys: ["shortpath", "destination"],
   });
 
   return (
