@@ -12,13 +12,14 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { toast } from "./ui/use-toast";
+import { TLink } from "@/lib/types";
 
 export function ShortlinkDropdown({
   link,
   setEditing,
   handleDeleteLink,
 }: {
-  link: any;
+  link: TLink;
   setEditing: Function;
   handleDeleteLink: Function;
 }) {
@@ -33,11 +34,11 @@ export function ShortlinkDropdown({
         <Button
           onClick={async () => {
             await navigator.clipboard.writeText(
-              `${localStorage.getItem("serverURL")}/${link.short}`
+              `${link.domain}/${link.shortpath}`
             );
             toast({
               title: "Link copied to clipboard",
-              description: `${localStorage.getItem("serverURL")}/${link.short}`,
+              description: `${link.domain}/${link.shortpath}`,
             });
           }}
           variant="outline"
@@ -48,7 +49,7 @@ export function ShortlinkDropdown({
         </Button>
 
         <Button
-          onClick={() => setEditing({ ...link, shortOld: link.short })}
+          onClick={() => setEditing(link)}
           className="w-full flex gap-2 justify-start text-left"
           variant="outline"
         >
@@ -56,7 +57,7 @@ export function ShortlinkDropdown({
           <span>Edit</span>
         </Button>
         <Button
-          onClick={() => handleDeleteLink(link.short)}
+          onClick={() => handleDeleteLink(link.id)}
           className="w-full flex gap-2 justify-start text-left"
           variant="destructive"
         >

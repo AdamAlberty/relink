@@ -5,12 +5,13 @@ import { toast } from "./ui/use-toast";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ShortlinkDropdown } from "./shortlink-dropdown";
+import { TLink } from "@/lib/types";
 
 export default function Shortlink({
   link,
   setEditing,
 }: {
-  link: { domain: string; shortpath: string; destination: string };
+  link: TLink;
   setEditing: Function;
 }) {
   const queryClient = useQueryClient();
@@ -18,13 +19,13 @@ export default function Shortlink({
   // Delete link
   const linkDelete = useMutation({
     mutationKey: ["links"],
-    mutationFn: (data: string) => {
+    mutationFn: (id: number) => {
       return fetch(`${localStorage.getItem("serverURL")}/api/links`, {
         method: "DELETE",
         headers: {
           Authorization: localStorage.getItem("apiKey")!,
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(id),
       });
     },
     onSuccess: (res) => {
@@ -43,8 +44,8 @@ export default function Shortlink({
     },
   });
 
-  const handleDeleteLink = (short: string) => {
-    linkDelete.mutate(short);
+  const handleDeleteLink = (id: number) => {
+    linkDelete.mutate(id);
   };
 
   return (

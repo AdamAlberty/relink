@@ -13,18 +13,19 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "./ui/use-toast";
 import { useEffect } from "react";
+import { TLink } from "@/lib/types";
 
 export function ShortlinkEditDialog({
   editing,
   setEditing,
 }: {
-  editing: any;
+  editing: TLink | null;
   setEditing: Function;
 }) {
   const queryClient = useQueryClient();
 
   const linkUpdate = useMutation({
-    mutationFn: (payload) => {
+    mutationFn: (payload: TLink) => {
       return fetch(`${localStorage.getItem("serverURL")}/api/links`, {
         method: "PUT",
         headers: {
@@ -51,7 +52,7 @@ export function ShortlinkEditDialog({
   });
 
   const handleUpdateLink = (values: any) => {
-    linkUpdate.mutate({ ...values, shortOld: editing.shortOld });
+    linkUpdate.mutate({ ...values, id: editing.id });
   };
 
   const {
@@ -61,21 +62,23 @@ export function ShortlinkEditDialog({
     formState: { errors },
   } = useForm({
     defaultValues: {
-      short: "",
-      long: "",
+      domain: "",
+      shortpath: "",
+      destination: "",
     },
   });
 
   useEffect(() => {
     if (editing) {
-      setValue("short", editing.short);
-      setValue("long", editing.long);
+      setValue("domain", editing.domain);
+      setValue("shortpath", editing.shortpath);
+      setValue("destination", editing.destination);
     }
   }, [editing]);
 
   return (
     <Dialog
-      open={editing}
+      open={editing ? true : false}
       onOpenChange={(open) => {
         if (!open) {
           setEditing(null);
@@ -89,18 +92,28 @@ export function ShortlinkEditDialog({
         <div className="">
           <div className="">
             <div>
-              <Label htmlFor="short">Short link</Label>
+              <Label htmlFor="long">Shortener domain</Label>
+              <Input
+                autoComplete="off"
+                type="text"
+                id="long"
+                placeholder="go.example.com"
+                {...register("domain")}
+              />
+            </div>
+            <div className="mt-3">
+              <Label htmlFor="short">Shortpath</Label>
               <div>
                 <div className="relative">
                   <Input
                     autoComplete="off"
                     type="text"
                     id="short"
-                    {...register("short")}
+                    {...register("shortpath")}
                   />
                   <div className="absolute right-0 top-0">
                     <GenerateShortlink
-                      onGenerate={(v: string) => setValue("short", v)}
+                      onGenerate={(v: string) => setValue("shortpath", v)}
                     />
                   </div>
                 </div>
@@ -112,7 +125,7 @@ export function ShortlinkEditDialog({
                 type="text"
                 id="long"
                 placeholder="https://example.com/page"
-                {...register("long")}
+                {...register("destination")}
               />
             </div>
             <Button

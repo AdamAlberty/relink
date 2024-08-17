@@ -1,6 +1,6 @@
 # Relink - Super simple link shortener
 
-Relink is a simple link shortener built with **Go** and **Redis**
+Relink is a simple link shortener built with **Go** and **Postgres**
 with Admin interface built with **Next.js**
 
 > [!CAUTION]  

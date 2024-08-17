@@ -24,14 +24,14 @@ func EditLink(id int, link *types.Link) error {
 
 func GetLinks() ([]types.Link, error) {
 	links := make([]types.Link, 0)
-	rows, err := database.DB.Query(context.Background(), "SELECT domain, shortpath, destination FROM links")
+	rows, err := database.DB.Query(context.Background(), "SELECT id, domain, shortpath, destination FROM links")
 	if err != nil {
 		return nil, err
 	}
 
 	link := new(types.Link)
 	for rows.Next() {
-		if err := rows.Scan(&link.Domain, &link.Shortpath, &link.Destination); err != nil {
+		if err := rows.Scan(&link.Id, &link.Domain, &link.Shortpath, &link.Destination); err != nil {
 			return links, nil
 		}
 		links = append(links, *link)
