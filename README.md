@@ -1,4 +1,4 @@
-# Relink - Super simple link shortener
+# Relink - Super simple multi-domain link shortener
 
 Relink is a simple link shortener built with **Go** and **Postgres**
 with Admin interface built with **Next.js**
@@ -31,12 +31,8 @@ You can tweak to docker-compose file to include caddy and configure it like that
 ### Caddy
 
 ```
-<relink-backend-domain> {
+<relink-domains> {
 	reverse_proxy localhost:8080
-}
-
-<relink-client-domain> {
-	reverse_proxy localhost:3000
 }
 ```
 

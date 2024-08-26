@@ -1,4 +1,4 @@
-export type TLink = {
+export type Link = {
   id: number;
   domain: string;
   shortpath: string;
