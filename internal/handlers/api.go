@@ -1,12 +1,9 @@
 package handlers
 
 import (
-	"bufio"
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"example.com/shortener/internal/models"
 	"example.com/shortener/internal/types"
@@ -14,42 +11,34 @@ import (
 )
 
 func HandleImport(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(1024 * 1024) // 1 MiB
+	err := r.ParseMultipartForm(1024 * 1024 * 5) // 5 MiB
 	if err != nil {
 		utils.JSON(w, map[string]any{"message": err}, http.StatusBadRequest)
 		return
 	}
 
-	file, _, err := r.FormFile("csv")
+	file, _, err := r.FormFile("import")
 	if err != nil {
-		defer file.Close()
+		utils.JSON(w, map[string]any{"message": err}, http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	links := make([]types.Link, 0)
+	err = json.NewDecoder(file).Decode(&links)
+	if err != nil {
 		utils.JSON(w, map[string]any{"message": err}, http.StatusBadRequest)
 		return
 	}
 
-	scanner := bufio.NewScanner(file)
-	errorCount := 0
-	for scanner.Scan() {
-		shortlink := strings.Split(scanner.Text(), ",")
-		if len(shortlink) < 3 {
-			errorCount++
-			continue
-		}
-
-		link := types.Link{
-			Domain:      shortlink[0],
-			Shortpath:   shortlink[1],
-			Destination: shortlink[2],
-		}
-
+	for _, link := range links {
 		if err := models.SaveLink(&link); err != nil {
-			errorCount++
 			continue
 		}
 	}
 
 	utils.JSON(w, map[string]any{
-		"message": fmt.Sprintf("links imported successfully (%d links could not be imported)", errorCount),
+		"message": "links imported successfully",
 	}, http.StatusCreated)
 }
 
@@ -60,13 +49,28 @@ func HandleExport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	csvwriter := csv.NewWriter(w)
-	for _, link := range links {
-		_ = csvwriter.Write([]string{link.Domain, link.Shortpath, link.Destination})
+	linksWithoutID := make([]map[string]any, len(links))
+	for i, link := range links {
+		mp := make(map[string]any)
+		mp["domain"] = link.Domain
+		mp["destination"] = link.Destination
+		mp["shortpath"] = link.Shortpath
+		linksWithoutID[i] = mp
 	}
-	csvwriter.Flush()
-	w.Header().Set("Content-Type", "text/csv")
-	w.Header().Set("Content-Disposition", "attachment;filename=shortlinks_export.csv")
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Disposition", "attachment;filename=export.json")
+	formattedJSON, err := json.MarshalIndent(linksWithoutID, "", "  ")
+	if err != nil {
+		utils.JSON(w, fmt.Sprintf("could not write links for exporting: %s", err), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write(formattedJSON)
+	if err != nil {
+		utils.JSON(w, fmt.Sprintf("could not write links for exporting: %s", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 func HandleGetLinks(w http.ResponseWriter, r *http.Request) {

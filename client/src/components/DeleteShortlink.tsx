@@ -12,8 +12,11 @@ import { Link } from "@/lib/types";
 import { Trash } from "lucide-react";
 import { toast } from "./ui/use-toast";
 import { AlertDialogDescription } from "@radix-ui/react-alert-dialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function DeleteShortlink({ link }: { link: Link }) {
+  const queryClient = useQueryClient();
+
   return (
     <AlertDialog>
       <AlertDialogTrigger>
@@ -39,6 +42,7 @@ export default function DeleteShortlink({ link }: { link: Link }) {
                 });
                 if (res.ok) {
                   toast({ title: (await res.json()).message });
+                  queryClient.invalidateQueries({ queryKey: ["links"] });
                 } else {
                   toast({
                     title: (await res.json()).message,

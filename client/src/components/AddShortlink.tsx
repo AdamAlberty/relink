@@ -5,9 +5,10 @@ import GenerateShortlink from "@/components/GenerateShortlink";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "./ui/use-toast";
 import { cn } from "@/lib/utils";
+import { Dispatch, SetStateAction } from "react";
 
 // Link schema
 const schema = z
@@ -21,7 +22,11 @@ const schema = z
   })
   .required();
 
-export default function AddShortlink() {
+export default function AddShortlink({
+  setIsAddingShortlink,
+}: {
+  setIsAddingShortlink: Dispatch<SetStateAction<boolean>>;
+}) {
   const {
     register,
     handleSubmit,
@@ -35,6 +40,8 @@ export default function AddShortlink() {
     },
     resolver: zodResolver(schema),
   });
+
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: (payload: { short: string; long: string }) => {
@@ -54,6 +61,8 @@ export default function AddShortlink() {
       toast({
         title: "Shortlink created successfully",
       });
+      queryClient.invalidateQueries({ queryKey: ["links"] });
+      setIsAddingShortlink(false);
     },
   });
 

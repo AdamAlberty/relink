@@ -1,15 +1,10 @@
 services:
-  relink-backend:
+  relink:
     ports:
       - '8080:8080'
-    build: "./backend"
+    build: .
     depends_on:
       - relink-db
-
-  relink-client:
-    ports:
-      - '3000:3000'
-    build: "./client"
 
   relink-db:
     image: postgres:16-alpine
@@ -19,19 +14,12 @@ services:
       - '5432:5432'
     volumes:
       - relink-data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
       interval: 3s
       timeout: 3s
       retries: 3
-
-  adminer:
-    image: adminer
-    restart: always
-    depends_on: 
-      - relink-db
-    ports:
-      - 9350:8080
 
 volumes:
   relink-data:

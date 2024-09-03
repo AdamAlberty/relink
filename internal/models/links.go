@@ -24,7 +24,7 @@ func EditLink(id int, link *types.Link) error {
 
 func GetLinks() ([]types.Link, error) {
 	links := make([]types.Link, 0)
-	rows, err := database.DB.Query(context.Background(), "SELECT id, domain, shortpath, destination FROM links")
+	rows, err := database.DB.Query(context.Background(), "SELECT id, domain, shortpath, destination FROM links ORDER BY created_at DESC")
 	if err != nil {
 		return nil, err
 	}
