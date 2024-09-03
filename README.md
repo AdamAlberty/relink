@@ -1,19 +1,17 @@
 # Relink - Super simple multi-domain link shortener
 
-Relink is a simple link shortener built with **Go** and **Postgres**
-with Admin interface built with **Vite React**
+Relink is a simple link shortener built with **Go**, with Admin interface built with **Vite React** and using **Postgres** to store shortlinks.
 
 > [!CAUTION]  
 > This is just a hobby project that, as of now, should not be used for production.
 
-## Architecture
+## Components
 
-- backend - main part, written in Go, redirects links and exposes REST API
-- Admin web interface - connects to the REST API for managing shortlinks
+- Backend - main part, written in Go, redirects links and exposes REST API
+- Admin web interface - created with Vite + React TS, connects to the REST API for managing shortlinks (part of the backend, but can be removed)
+- Postgres database - for storing shortlinks. The only state is stored in the database, so it's easy to scale to multiple nodes.
 
-The REST API is on `/_api` path and the web admin is on `/_admin`.
-
-The backend and admin are stateless. The only state is stored in the database, so it's easy to scale to multiple nodes.
+The REST API is on `/_api` route and the web admin is on `/_admin` route.
 
 ## Installation
 
@@ -22,13 +20,11 @@ The simplest way to setup Relink would be to use Docker.
 1. First, clone the repository
 2. Copy `.env.example` to `.env` and change values accordingly
 3. Run `docker compose build` and `docker compose up`
-4. Then you can start adding shortlinks through web client or directly through the REST API
+4. Then you can start adding shortlinks through web client on `/_admin` or directly through the REST API
 
 ## Using with reverse proxy
 
 You probably want to have these services behind a reverse proxy.
-
-You can tweak to docker-compose file to include caddy and configure it like that.
 
 ### Caddy
 

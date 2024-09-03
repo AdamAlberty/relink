@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"html/template"
 	"net/http"
 
 	"example.com/shortener/internal/handlers"
@@ -9,8 +8,6 @@ import (
 )
 
 func CreateRouter() *http.ServeMux {
-	handlers.BadLinkTempl = template.Must(template.ParseFiles("views/bad-link.html"))
-
 	r := http.NewServeMux()
 
 	r.HandleFunc("GET /_health", handlers.HandleCheckHealth)

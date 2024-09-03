@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 
@@ -10,8 +9,6 @@ import (
 	"example.com/shortener/internal/utils"
 	"github.com/jackc/pgx/v5"
 )
-
-var BadLinkTempl *template.Template
 
 // Main shortlink redirecting logic
 func HandleShortlinkRedirect(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +22,7 @@ func HandleShortlinkRedirect(w http.ResponseWriter, r *http.Request) {
 		if err != pgx.ErrNoRows {
 			log.Println(err)
 		}
-		BadLinkTempl.Execute(w, nil)
+		http.Error(w, "Redirect could not be found for this shortlink 🤷", http.StatusNotFound)
 		return
 	}
 

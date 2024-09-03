@@ -5,6 +5,8 @@ services:
     build: .
     depends_on:
       - relink-db
+    entrypoint: sh -c 'until nc -z relink-db 5432; do echo "Waiting for database..."; sleep 1; done && exec /app/relink'
+
 
   relink-db:
     image: postgres:16-alpine
